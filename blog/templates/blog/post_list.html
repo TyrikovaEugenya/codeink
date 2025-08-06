@@ -1,0 +1,28 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Блог — CodeInk{% endblock %}
+
+{% block content %}
+<h1>Статьи</h1>
+
+<div class="row">
+    {% for post in posts %}
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{{ post.get_absolute_url }}" class="text-decoration-none">
+                        {{ post.title }}
+                    </a>
+                </h5>
+                <p class="text-muted small">
+                    {{ post.created_at|date:"d M Y" }}
+                </p>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p>Пока нет опубликованных статей.</p>
+    {% endfor %}
+</div>
+{% endblock %}
