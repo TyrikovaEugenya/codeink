@@ -3,7 +3,13 @@
 {% block title %}Блог — CodeInk{% endblock %}
 
 {% block content %}
-<h1>Статьи</h1>
+<h1>
+    {% if tag %}
+        Статьи с тегом: #{{ tag.name }}
+    {% else %}
+        Все статьи
+    {% endif %}
+</h1>
 
 <div class="row">
     {% for post in posts %}
@@ -21,7 +27,7 @@
                 {% if post.tags.all %}
                     <div class="mb-2">
                         {% for tag in post.tags.all %}
-                        <a href="#" class="badge bg-secondary text-decoration-none">
+                        <a href="{% url 'blog:post_list_by_tag' tag.slug %}" class="badge bg-secondary text-decoration-none">
                             #{{ tag.name }}
                         </a>
                         {% endfor %}
