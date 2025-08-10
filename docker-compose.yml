@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=True
+      - EMAIL_HOST_USER=your_email@gmail.com
+      - EMAIL_HOST_PASSWORD=your_app_password
+    command: python manage.py runserver 0.0.0.0:8000
+
+  # База данных (опционально, пока используем SQLite)
+  # db:
+  #   image: postgres:15
+  #   environment:
+  #     POSTGRES_DB: codeink
+  #     POSTGRES_USER: codeink
+  #     POSTGRES_PASSWORD: codeink
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data/
+
+# volumes:
+  # postgres_data:

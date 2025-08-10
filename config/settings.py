@@ -25,8 +25,15 @@ SECRET_KEY = 'django-insecure-)d3ggmop5v9-m0)g8td6^u37&^f5n3ju7*c-_4+u420%u&^943
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '0.0.0.0',
+]
 
+# Для продакшена — можно будет добавить домен
+if not DEBUG:
+    ALLOWED_HOSTS.append('your-deployed-domain.onrender.com')
 
 # Application definition
 
