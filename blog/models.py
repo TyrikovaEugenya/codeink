@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.text import slugify
 from django.core.mail import send_mail
@@ -6,6 +7,12 @@ from django.conf import settings
 
 class Post(models.Model):
     title = models.CharField("Заголовок", max_length=200)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='posts',
+        verbose_name="Автор"
+    )
     slug = models.SlugField("Слаг", unique=True, blank=True)
     content = models.TextField("Контент (Markdown)")
     created_at = models.DateTimeField("Создано", auto_now_add=True)

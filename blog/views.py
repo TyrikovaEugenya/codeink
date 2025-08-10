@@ -5,7 +5,8 @@ from django.db import IntegrityError
 from .models import Post, Tag
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth import login
-from .forms import CommentForm, RegisterForm
+from django.contrib.auth.decorators import login_required
+from .forms import CommentForm, RegisterForm, PostForm
 
 def register(request):
     if request.method == 'POST':
@@ -67,6 +68,21 @@ def post_detail(request, slug):
         'form': form,
         'rate_limited': rate_limited,
     })
+
+@login_required
+def post_create(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user  # Привязываем автора
+            post.save()
+            form.save_m2m()  # Для ManyToMany (теги)
+            return redirect('blog:post_detail', slug=post.slug)
+    else:
+        form = PostForm()
+        
+    return render(request, 'blog/post_create.html', {'form': form})
 
 def robots_txt(request):
     lines = [
