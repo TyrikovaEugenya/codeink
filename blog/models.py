@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
+from django.core.mail import send_mail
+from django.conf import settings
 
 class Post(models.Model):
     title = models.CharField("Заголовок", max_length=200)
@@ -44,4 +46,56 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class Comment(models.Model):
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name="Статья"
+    )
+    author = models.CharField("Имя", max_length=100)
+    email = models.EmailField("Email", max_length=254)
+    text = models.TextField("Комментарий")
+    created_at = models.DateTimeField("Создан", auto_now_add=True)
+    is_approved = models.BooleanField("Одобрен", default=False)
+
+    class Meta:
+        verbose_name = "Комментарий"
+        verbose_name_plural = "Комментарии"
+        ordering = ['-created_at']
+        
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old_comment = Comment.objects.get(pk=self.pk)
+            just_approved = not old_comment.is_approved and self.is_approved
+        else:
+            just_approved = False
+            
+        super().save(*args, **kwargs)
+        
+        if just_approved:
+            try:
+                send_mail(
+                    subject=f'Ваш комментарий опубликован — {self.post.title}',
+                    message=f'''
+Здравствуйте, {self.author}!
+
+Ваш комментарий к статье "{self.post.title}" был одобрен и опубликован.
+
+Спасибо за участие в обсуждении!
+
+С уважением,
+Команда CodeInk
+                    ''',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[self.email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                print(f"Ошибка отправки email: {e}")
+
+    def __str__(self):
+        return f'Комментарий от {self.author} к {self.post.title}'
     

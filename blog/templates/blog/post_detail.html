@@ -26,5 +26,38 @@
     </div>
 </article>
 
+<!-- Комментарии -->
+<section class="my-5">
+    <h3>Комментарии ({{ comments.count }})</h3>
+
+    {% for comment in comments %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <strong>{{ comment.author }}</strong>
+            <span class="text-muted small"> — {{ comment.created_at|date:"d M Y, H:i" }}</span>
+            <p class="mt-2">{{ comment.text }}</p>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">Пока нет комментариев. Будьте первым!</p>
+    {% endfor %}
+</section>
+
+<!-- Форма добавления комментария -->
+<section class="my-5">
+    <h3>Оставить комментарий</h3>
+    {% if rate_limited %}
+        <div class="alert alert-warning">
+        Вы можете оставлять комментарии не чаще одного раза в 5 минут.
+        </div>
+    {% else %}
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+    {% endif%}
+</section>
+
 <a href="{% url 'blog:post_list' %}" class="btn btn-outline-secondary">← Назад к списку</a>
 {% endblock %}
