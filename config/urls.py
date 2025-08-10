@@ -9,6 +9,7 @@ sitemaps = {
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('', include('blog.urls')),  # Подключение маршрутов из blog/urls.py
     path('captcha/', include('captcha.urls')),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),

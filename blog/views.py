@@ -1,9 +1,23 @@
 import time
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.cache import cache
+from django.db import IntegrityError
 from .models import Post, Tag
 from django.http import HttpResponse, HttpResponseForbidden
-from .forms import CommentForm
+from django.contrib.auth import login
+from .forms import CommentForm, RegisterForm
+
+def register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('blog:post_list')
+    else:
+        form = RegisterForm()
+
+    return render(request, 'blog/register.html', {'form': form})
 
 def post_list(request, tag_slug=None):
     posts = Post.objects.filter(is_published=True).order_by('-created_at')
@@ -33,9 +47,15 @@ def post_detail(request, slug):
             form = CommentForm(request.POST)
             if form.is_valid():
                 comment = form.save(commit=False)
-                comment.save()
-                cache.set(cache_key, True, 60 * 5)
-                form = CommentForm()
+                comment.post = post
+                comment.is_approved = False
+                try:
+                    comment.save()
+                    cache.set(cache_key, True, 60 * 5)
+                    form = CommentForm()
+                except IntegrityError:
+                    form.add_error(None, "Ошибка сохранения комментария. Попробуйте снова.")
+                
         else:
             form = CommentForm()
     

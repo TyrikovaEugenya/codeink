@@ -7,10 +7,7 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
-    environment:
-      - DEBUG=True
-      - EMAIL_HOST_USER=your_email@gmail.com
-      - EMAIL_HOST_PASSWORD=your_app_password
+    env_file: .env
     command: python manage.py runserver 0.0.0.0:8000
 
   # База данных (опционально, пока используем SQLite)
