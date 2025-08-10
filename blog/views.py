@@ -1,10 +1,12 @@
 import time
+from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.cache import cache
 from django.db import IntegrityError
 from .models import Post, Tag
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.contrib.auth import login
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import CommentForm, RegisterForm, PostForm
 
@@ -83,6 +85,40 @@ def post_create(request):
         form = PostForm()
         
     return render(request, 'blog/post_create.html', {'form': form})
+
+@login_required
+def post_edit(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    
+    if post.author != request.user:
+        raise Http404("У вас нет прав на редактирование этой статьи.")
+    
+    if request.method == 'POST':
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.updated_at = timezone.now()  # обновим время
+            post.save()
+            form.save_m2m()
+            return redirect('blog:post_detail', slug=post.slug)
+    else:
+        form = PostForm(instance=post)
+
+    return render(request, 'blog/post_edit.html', {'form': form, 'post': post})
+
+def user_profile(request, username):
+    user = get_object_or_404(User, username=username)
+
+    # Получаем только опубликованные статьи автора
+    posts = Post.objects.filter(
+        author=user,
+        is_published=True
+    ).order_by('-created_at')
+
+    return render(request, 'blog/user_profile.html', {
+        'profile_user': user,  # чтобы не путать с request.user
+        'posts': posts,
+    })
 
 def robots_txt(request):
     lines = [

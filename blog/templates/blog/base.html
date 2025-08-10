@@ -15,6 +15,7 @@
             <div class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
                     <span class="navbar-text me-3">Привет, {{ user.username }}!</span>
+                    <a href="{% url 'blog:user_profile' user.username %}" class="nav-link">Мой профиль</a>
                     <a href="{% url 'blog:post_create' %}" class="nav-link">Новая статья</a>
                     <form action="{% url 'logout' %}" method="post" class="d-inline">
                         {% csrf_token %}

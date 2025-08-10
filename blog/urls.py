@@ -9,5 +9,7 @@ urlpatterns = [
     path('post/<slug:slug>/', views.post_detail, name='post_detail'),
     path('register/', views.register, name='register'),
     path('create/', views.post_create, name='post_create'),
+    path('edit/<slug:slug>/', views.post_edit, name='post_edit'),
+    path('user/<str:username>/', views.user_profile, name='user_profile'),
     path('robots.txt', views.robots_txt),
 ]

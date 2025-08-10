@@ -1,0 +1,52 @@
+{% extends "blog/base.html" %}
+
+{% block title %}{{ profile_user.username }} — CodeInk{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>Автор: {{ profile_user.username }}</h2>
+        
+        {% if profile_user.first_name or profile_user.last_name %}
+        <p class="text-muted">
+            {% if profile_user.first_name %}{{ profile_user.first_name }}{% endif %}
+            {% if profile_user.last_name %} {{ profile_user.last_name }}{% endif %}
+        </p>
+        {% endif %}
+
+        <p>
+            Написал статей: <strong>{{ posts.count }}</strong>
+        </p>
+
+        <hr>
+
+        {% if posts %}
+            {% for post in posts %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{% url 'blog:post_detail' post.slug %}" class="text-decoration-none">
+                            {{ post.title }}
+                        </a>
+                    </h5>
+                    <p class="text-muted small">
+                        {{ post.created_at|date:"d M Y" }}
+                    </p>
+                    {% if post.tags.all %}
+                    <div class="mb-2">
+                        {% for tag in post.tags.all %}
+                        <a href="{% url 'blog:post_list_by_tag' tag.slug %}" class="badge bg-secondary text-decoration-none">
+                            #{{ tag.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">Пока нет опубликованных статей.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
