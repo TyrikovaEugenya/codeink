@@ -36,7 +36,11 @@ def post_list(request, tag_slug=None):
     })
 
 def post_detail(request, slug):
+    print("=== post_detail called ===")
     post = get_object_or_404(Post, slug=slug, is_published=True)
+    print(f"Post found: {post.title}")
+    comments = post.comments.filter(is_approved=True)
+    print(f"Approved comments: {comments.count()}")
     comments = post.comments.filter(is_approved=True)
     
     client_ip = get_client_ip(request)
@@ -57,8 +61,7 @@ def post_detail(request, slug):
                     cache.set(cache_key, True, 60 * 5)
                     form = CommentForm()
                 except IntegrityError:
-                    form.add_error(None, "Ошибка сохранения комментария. Попробуйте снова.")
-                
+                    form.add_error(None, "Ошибка сохранения комментария. Попробуйте снова.")       
         else:
             form = CommentForm()
     

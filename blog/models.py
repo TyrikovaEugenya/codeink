@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.core.mail import send_mail
 from django.conf import settings
+import translify
 
 class Post(models.Model):
     title = models.CharField("Заголовок", max_length=200)
@@ -27,7 +28,10 @@ class Post(models.Model):
         
     def save(self, *args, **kwargs):
         if not self.slug:
+            slug_text = translify(self.title)
             self.slug = slugify(self.title)
+            if not self.slug:
+                self.slug = f'post-{self.id}' if self.pk else f'temp-{hash(self.title)}'
         super().save(*args, **kwargs)
         
     def __str__(self):
@@ -63,7 +67,7 @@ class Comment(models.Model):
         verbose_name="Статья"
     )
     author = models.CharField("Имя", max_length=100)
-    email = models.EmailField("Email", max_length=254)
+    email = models.EmailField("Email", max_length=254, blank=True, null=True)
     text = models.TextField("Комментарий")
     created_at = models.DateTimeField("Создан", auto_now_add=True)
     is_approved = models.BooleanField("Одобрен", default=False)
