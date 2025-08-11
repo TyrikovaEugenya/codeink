@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.core.mail import send_mail
 from django.conf import settings
-import translify
+from pytils.translit import translify
 
 class Post(models.Model):
     title = models.CharField("Заголовок", max_length=200)
